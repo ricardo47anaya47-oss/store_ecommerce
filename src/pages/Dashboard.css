@@ -582,3 +582,105 @@
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 15px 5px;
+  }
+
+  .dashboard h1 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+
+  .welcome-card {
+    padding: 15px;
+  }
+
+  .welcome-card h2 {
+    font-size: 1.1rem;
+  }
+
+  .welcome-card p {
+    font-size: 0.85rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-icon {
+    font-size: 1.8rem;
+  }
+
+  .stat-card h3 {
+    font-size: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .account-section,
+  .orders-section {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .account-section h2,
+  .orders-section h2 {
+    font-size: 1rem;
+  }
+
+  .account-info {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .info-field label {
+    font-size: 0.75rem;
+  }
+
+  .info-field p {
+    font-size: 0.85rem;
+  }
+
+  .orders-table {
+    font-size: 0.65rem;
+  }
+
+  .orders-table tr {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .action-buttons button {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+
+  .edit-btn {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .btn-details {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .modal-content {
+    padding: 20px 15px;
+    max-width: 95vw;
+  }
+
+  .account-section .form-group input {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+}
