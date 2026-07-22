@@ -334,3 +334,87 @@
     padding: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .admin-container {
+    padding: 0 10px;
+    margin: 1rem auto;
+  }
+
+  .admin-container h1 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .stats-grid {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    min-width: 50px;
+  }
+
+  .stat-content h3 {
+    font-size: 0.85rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .purchases-section {
+    padding: 1rem;
+  }
+
+  .purchases-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .purchases-table {
+    font-size: 0.75rem;
+  }
+
+  .purchases-table th,
+  .purchases-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .purchases-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .action-buttons {
+    gap: 5px;
+  }
+
+  .btn-small {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1rem;
+    max-width: 95vw;
+  }
+
+  .modal-content h2 {
+    font-size: 1.1rem;
+  }
+
+  .form-group input {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .total-amount {
+    font-size: 1.4rem;
+  }
+}
