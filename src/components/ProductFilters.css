@@ -98,6 +98,64 @@
   margin: 0;
 }
 
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .product-filters {
+    margin-bottom: 20px;
+  }
+
+  .filters-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .filters-content {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .filter-group {
+    gap: 6px;
+  }
+
+  .filter-group label {
+    font-size: 0.9rem;
+  }
+
+  .filter-select {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  .price-range {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-content {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .filter-group label {
+    font-size: 0.85rem;
+  }
+
+  .filter-select {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .price-range {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .price-input {
+    width: 100%;
+  }
+}
+
 .price-input input {
   flex: 1;
   padding: 8px 10px;
