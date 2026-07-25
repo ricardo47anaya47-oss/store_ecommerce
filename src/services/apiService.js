@@ -1,58 +1,54 @@
-const API_URL = 'http://localhost/store_ecommerce/api';
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost/store_ecommerce/api";
 
-// Utilities
-const getToken = () => localStorage.getItem('token');
+const getToken = () => localStorage.getItem("token");
 
 const apiCall = async (endpoint, options = {}) => {
   const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
+    "Content-Type": "application/json",
+    ...(options.headers || {})
   };
 
-  if (getToken()) {
-    headers.Authorization = `Bearer ${getToken()}`;
+  const token = getToken();
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
 
-  const data = await response.json();
+    const text = await response.text();
 
-  if (!response.ok) {
-    console.error(`[API ERROR] ${endpoint}:`, data);
-    if (data.message === 'Token no válido o expirado') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    let data = {};
+
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      throw new Error(`Respuesta inválida del servidor:\n${text}`);
     }
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+
+      throw new Error(data.message || "Error del servidor");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("API:", error);
+
+    return {
+      success: false,
+      message: error.message
+    };
   }
-
-  return data;
-};
-
-// Auth Services
-export const authService = {
-  register: async (userData) => {
-    return apiCall('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
-  },
-
-  login: async (credentials) => {
-    return apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-  },
-
-  profile: async () => {
-    return apiCall('/auth/profile', {
-      method: 'GET',
-    });
-  },
 };
 
 // Product Services
