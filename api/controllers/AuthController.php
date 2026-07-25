@@ -2,6 +2,11 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Database.php';
 require_once __DIR__ . '/../middleware/auth.php';
+// Permitir conexiones desde tu app de Vercel
+header("Access-Control-Allow-Origin: https://vercel.app");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Content-Type: application/json; 
 
 class AuthController {
     private $db;
@@ -23,6 +28,11 @@ class AuthController {
                 'message' => 'Email, contraseña y nombre son requeridos'
             ];
         }
+        // Responder inmediatamente a las peticiones de verificación de los navegadores móviles (Preflight)
+       if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+         http_response_code(200);
+       exit(0);
+       }
 
         $email = $this->db->escape($data['email']);
         $name = $this->db->escape($data['name']);
