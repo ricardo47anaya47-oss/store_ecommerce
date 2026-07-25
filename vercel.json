@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/**/*.php": {
+    "api/Users/**/*.php": {
       "runtime": "vercel-php@0.7.1"
     },
     "backen/**/*.php": {
