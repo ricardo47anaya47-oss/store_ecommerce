@@ -1,20 +1,8 @@
 {
-  "functions": {
-    "api/Users/**/*.php": {
-      "runtime": "vercel-php@0.7.1"
-    },
-    "backen/Users/**/*.php": {
-      "runtime": "vercel-php@0.7.1"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/backen/(.*)",
-      "dest": "/backen/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

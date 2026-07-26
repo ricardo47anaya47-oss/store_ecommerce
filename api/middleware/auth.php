@@ -1,77 +1,117 @@
 <?php
+
 require_once __DIR__ . '/../config.php';
 
-function decodeJWT($token) {
-    $parts = explode('.', $token);
-    
-    if (count($parts) !== 3) {
-        return null;
-    }
-
-    $payload = json_decode(base64_decode($parts[1]), true);
-    return $payload;
+function base64UrlEncode($data)
+{
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
-function verifyToken($token) {
+function base64UrlDecode($data)
+{
+    return base64_decode(strtr($data, '-_', '+/'));
+}
+
+function createJWT($userId, $email)
+{
+    $header = base64UrlEncode(json_encode([
+        "typ" => "JWT",
+        "alg" => "HS256"
+    ]));
+
+    $payload = base64UrlEncode(json_encode([
+        "userId" => $userId,
+        "email" => $email,
+        "iat" => time(),
+        "exp" => time() + 86400
+    ]));
+
+    $signature = hash_hmac(
+        "sha256",
+        "$header.$payload",
+        JWT_SECRET,
+        true
+    );
+
+    $signature = base64UrlEncode($signature);
+
+    return "$header.$payload.$signature";
+}
+
+function verifyToken($token)
+{
     if (!$token) {
         return null;
     }
 
-    $decoded = decodeJWT($token);
-    
-    if (!$decoded) {
+    $parts = explode('.', $token);
+
+    if (count($parts) !== 3) {
         return null;
     }
 
-    // Verificar expiración
-    if (isset($decoded['exp']) && $decoded['exp'] < time()) {
+    list($header, $payload, $signature) = $parts;
+
+    $expected = base64UrlEncode(
+        hash_hmac(
+            "sha256",
+            "$header.$payload",
+            JWT_SECRET,
+            true
+        )
+    );
+
+    if (!hash_equals($expected, $signature)) {
         return null;
     }
 
-    return $decoded;
+    $payload = json_decode(base64UrlDecode($payload), true);
+
+    if (!$payload) {
+        return null;
+    }
+
+    if (isset($payload["exp"]) && $payload["exp"] < time()) {
+        return null;
+    }
+
+    return $payload;
 }
 
-function getTokenFromHeader() {
-    $headers = getallheaders();
-    
-    if (isset($headers['Authorization'])) {
-        preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches);
-        return $matches[1] ?? null;
+function getTokenFromHeader()
+{
+    $headers = function_exists('getallheaders')
+        ? getallheaders()
+        : [];
+
+    foreach ($headers as $key => $value) {
+
+        if (strtolower($key) === "authorization") {
+
+            if (preg_match('/Bearer\s+(.*)$/i', $value, $matches)) {
+                return trim($matches[1]);
+            }
+        }
     }
-    
+
     return null;
 }
 
-function createJWT($userId, $email) {
-    $header = json_encode(['typ' => 'JWT', 'alg' => JWT_ALGORITHM]);
-    $payload = json_encode([
-        'userId' => $userId,
-        'email' => $email,
-        'iat' => time(),
-        'exp' => time() + (24 * 60 * 60) // 24 horas
-    ]);
-    
-    $header = base64_encode($header);
-    $payload = base64_encode($payload);
-    $signature = hash_hmac('sha256', "$header.$payload", JWT_SECRET, true);
-    $signature = base64_encode($signature);
-    
-    return "$header.$payload.$signature";
-}
+function requireAuth()
+{
+    $payload = verifyToken(getTokenFromHeader());
 
-function requireAuth() {
-    $token = getTokenFromHeader();
-    $decoded = verifyToken($token);
-    
-    if (!$decoded) {
+    if (!$payload) {
+
         http_response_code(401);
+
         echo json_encode([
-            'success' => false,
-            'message' => 'Token no válido o expirado'
+            "success" => false,
+            "message" => "Token inválido."
         ]);
+
         exit;
     }
-    
-    return $decoded;
+
+    return $payload;
 }
-?>
