@@ -1,4 +1,17 @@
 <?php
+
+header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store");
+header("Pragma: no-cache");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ProductController.php';
@@ -22,7 +35,16 @@ function sendJson($payload, $statusCode = 200) {
 
 // Obtener la ruta
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$request = str_replace('/store_ecommerce/api', '', $request);
+
+// Detectar automáticamente dónde está instalada la API
+$basePath = dirname($_SERVER['SCRIPT_NAME']);
+
+if ($basePath !== '/' && strpos($request, $basePath) === 0) {
+    $request = substr($request, strlen($basePath));
+}
+
+$request = '/' . trim($request, '/');
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Rutas de autenticación
@@ -98,17 +120,15 @@ if ($request === '/cart/add' && $method === 'POST') {
         $response = $controller->addToCart();
         sendJson($response);
     } catch (Exception $e) {
-        sendJson([
-            'success' => false,
-            'message' => 'Error al agregar al carrito',
-            'error' => $e->getMessage(),
-            'debug' => [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]
-        ], 500);
-    }
+
+    error_log($e->getMessage());
+
+    sendJson([
+        "success" => false,
+        "message" => "Error interno del servidor."
+    ],500);
+
+   }
 }
 
 if ($request === '/cart/remove' && $method === 'POST') {
@@ -169,7 +189,11 @@ if ($request === '/purchases/admin/update-status' && $method === 'POST') {
 
 // Ruta no encontrada
 // Si llegamos aquí, ruta no encontrada. Capturar cualquier salida y devolver JSON.
-$buffer = ob_get_clean();
+$buffer = "";
+
+if (ob_get_level() > 0) {
+    $buffer = ob_get_clean();
+}
 if ($buffer && trim($buffer) !== '') {
     // Si hay salida no esperada (HTML), no devolverla como JSON
     sendJson([

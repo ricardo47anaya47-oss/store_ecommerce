@@ -244,3 +244,33 @@ export const purchaseService = {
     });
   },
 };
+
+
+// Authentication Services
+
+export const authService = {
+  register: async (userData) => {
+    return apiCall("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  },
+
+  login: async (credentials) => {
+    return apiCall("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+  },
+
+  profile: async () => {
+    return apiCall("/auth/profile", {
+      method: "GET",
+    });
+  },
+
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  },
+};
