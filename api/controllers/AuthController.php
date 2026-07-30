@@ -2,11 +2,27 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Database.php';
 require_once __DIR__ . '/../middleware/auth.php';
-// Permitir conexiones desde tu app de Vercel
-header("Access-Control-Allow-Origin: https://ce-six.vercel.app");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+$allowedOrigins = [
+    'https://ce-six.vercel.app',
+    'https://store-ecommerce-six.vercel.app',
+    'http://localhost',
+    'http://localhost:5173',
+    'http://127.0.0.1',
+    'http://127.0.0.1:5173'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Vary: Origin');
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Origin, Accept");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Content-Type: application/json; charset=UTF-8") 
+header("Content-Type: application/json; charset=UTF-8");
 
 class AuthController {
     private $db;
@@ -28,19 +44,17 @@ class AuthController {
                 'message' => 'Email, contraseña y nombre son requeridos'
             ];
         }
-        
 
         $email = $this->db->escape($data['email']);
         $name = $this->db->escape($data['name']);
         $lastName = isset($data['lastName']) ? $this->db->escape($data['lastName']) : '';
         $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        // Verificar si el email ya existe
-        $idCol = $this->getUserIdColumn();
         $stmt = $this->db->prepare("SELECT id FROM user WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
+
         if ($result->num_rows > 0) {
             return [
                 'success' => false,
@@ -48,29 +62,29 @@ class AuthController {
             ];
         }
 
-        // Insertar nuevo usuario
-        $stmt = $this->db->prepare( "INSERT INTO user(name,last_name,email,password,created_at)VALUES(?,?,?,?,NOW())");
+        $stmt = $this->db->prepare("INSERT INTO user(name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->bind_param("ssss", $name, $lastName, $email, $password);
 
-            $stmt->bind_param( "ssss", $name, $lastName, $email, $password );
-
-            $stmt->execute();
-            
-            return [
-                'success' => true,
-                'message' => 'Registro exitoso',
-                'token' => $token,
-                'user' => [
-                    'id' => $userId,
-                    'name' => $name,
-                    'email' => $email
-                ]
-            ];
-        } else {
+        if (!$stmt->execute()) {
             return [
                 'success' => false,
                 'message' => 'Error en el registro'
             ];
         }
+
+        $userId = $this->db->lastInsertId();
+        $token = createJWT($userId, $email);
+
+        return [
+            'success' => true,
+            'message' => 'Registro exitoso',
+            'token' => $token,
+            'user' => [
+                'id' => $userId,
+                'name' => $name,
+                'email' => $email
+            ]
+        ];
     }
 
     public function login() {

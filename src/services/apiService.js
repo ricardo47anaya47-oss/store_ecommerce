@@ -1,5 +1,4 @@
-const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost/store_ecommerce/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getToken = () => localStorage.getItem("token");
 
