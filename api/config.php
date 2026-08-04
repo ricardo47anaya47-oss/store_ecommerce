@@ -1,10 +1,10 @@
 <?php
 // Configuración de base de datos
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'store_ecommerce');
-define('DB_PORT', 3306);
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_NAME', getenv('DB_NAME') ?: 'store_ecommerce');
+define('DB_PORT', getenv('DB_PORT') ?: 3306);
 
 // Configuración de JWT
 define('JWT_SECRET', 'Y6xVf3L9zP2rQ8mT1nW4kHs7A0cBdE5FgHiJkLmNoPqRsTuVwXyZ123456789');
