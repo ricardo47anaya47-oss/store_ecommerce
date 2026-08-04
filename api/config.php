@@ -1,9 +1,9 @@
 <?php
 // Configuración de base de datos
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('DB_NAME') ?: 'store_ecommerce');
+define('DB_HOST', getenv('DB_HOST') ?: 'sql208.infinityfree.com');
+define('DB_USER', getenv('DB_USER') ?: 'if0_42533402');
+define('DB_PASS', getenv('DB_PASS') ?: 'nQY2doalEG6');
+define('DB_NAME', getenv('DB_NAME') ?: 'if0_42533402_proyecto');
 define('DB_PORT', getenv('DB_PORT') ?: 3306);
 
 // Configuración de JWT
