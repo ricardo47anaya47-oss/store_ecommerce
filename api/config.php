@@ -25,4 +25,19 @@ define('JWT_ALGORITHM', 'HS256');
     exit;
 });
 
+/*
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    error_log("$errstr en $errfile:$errline");
+
+    http_response_code(500);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Error interno del servidor."
+    ]);
+
+    exit;
+});
+*/
+
 ?>
