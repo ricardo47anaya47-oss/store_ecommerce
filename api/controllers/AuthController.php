@@ -4,42 +4,29 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Database.php';
 require_once __DIR__ . '/../middleware/auth.php';
 
-$allowedOrigins = [
-    'https://ce-six.vercel.app',
-    'https://store-ecommerce-six.vercel.app',
-    'http://localhost',
-    'http://localhost:5173',
-    'http://127.0.0.1',
-    'http://127.0.0.1:5173'
-];
-
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowedOrigins, true)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header('Vary: Origin');
-} else {
-    header('Access-Control-Allow-Origin: *');
-}
-
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Origin, Accept");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Content-Type: application/json; charset=UTF-8");
-
-class AuthController {
+class AuthController
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new Database();
     }
 
-    private function getUserIdColumn() {
-        return 'id'; // Columna primaria
+    private function getUserIdColumn()
+    {
+        return 'id';
     }
 
-    public function register() {
+    public function register()
+    {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($data['email']) || !isset($data['password']) || !isset($data['name'])) {
+        if (
+            !isset($data['email']) ||
+            !isset($data['password']) ||
+            !isset($data['name'])
+        ) {
             return [
                 'success' => false,
                 'message' => 'Email, contraseña y nombre son requeridos'
@@ -48,12 +35,24 @@ class AuthController {
 
         $email = $this->db->escape($data['email']);
         $name = $this->db->escape($data['name']);
-        $lastName = isset($data['lastName']) ? $this->db->escape($data['lastName']) : '';
-        $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        $stmt = $this->db->prepare("SELECT id FROM user WHERE email = ?");
+        $lastName = isset($data['lastName'])
+            ? $this->db->escape($data['lastName'])
+            : '';
+
+        $password = password_hash(
+            $data['password'],
+            PASSWORD_DEFAULT
+        );
+
+        // Comprobar si existe el usuario
+        $stmt = $this->db->prepare(
+            "SELECT id FROM user WHERE email = ?"
+        );
+
         $stmt->bind_param("s", $email);
         $stmt->execute();
+
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
@@ -63,8 +62,20 @@ class AuthController {
             ];
         }
 
-        $stmt = $this->db->prepare("INSERT INTO user(name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->bind_param("ssss", $name, $lastName, $email, $password);
+        // Crear usuario
+        $stmt = $this->db->prepare(
+            "INSERT INTO user
+            (name, last_name, email, password, created_at)
+            VALUES (?, ?, ?, ?, NOW())"
+        );
+
+        $stmt->bind_param(
+            "ssss",
+            $name,
+            $lastName,
+            $email,
+            $password
+        );
 
         if (!$stmt->execute()) {
             return [
@@ -74,7 +85,11 @@ class AuthController {
         }
 
         $userId = $this->db->lastInsertId();
-        $token = createJWT($userId, $email);
+
+        $token = createJWT(
+            $userId,
+            $email
+        );
 
         return [
             'success' => true,
@@ -88,10 +103,17 @@ class AuthController {
         ];
     }
 
-    public function login() {
-        $data = json_decode(file_get_contents('php://input'), true);
+    public function login()
+    {
+        $data = json_decode(
+            file_get_contents('php://input'),
+            true
+        );
 
-        if (!isset($data['email']) || !isset($data['password'])) {
+        if (
+            !isset($data['email']) ||
+            !isset($data['password'])
+        ) {
             return [
                 'success' => false,
                 'message' => 'Email y contraseña son requeridos'
@@ -101,8 +123,17 @@ class AuthController {
         $email = $this->db->escape($data['email']);
 
         $idCol = $this->getUserIdColumn();
-        $result = $this->db->query("SELECT $idCol as id, name, email, password FROM user WHERE email = '$email'");
-        
+
+        $result = $this->db->query(
+            "SELECT
+                $idCol AS id,
+                name,
+                email,
+                password
+             FROM user
+             WHERE email = '$email'"
+        );
+
         if ($result->num_rows === 0) {
             return [
                 'success' => false,
@@ -112,14 +143,22 @@ class AuthController {
 
         $user = $result->fetch_assoc();
 
-        if (!password_verify($data['password'], $user['password'])) {
+        if (
+            !password_verify(
+                $data['password'],
+                $user['password']
+            )
+        ) {
             return [
                 'success' => false,
                 'message' => 'Contraseña incorrecta'
             ];
         }
 
-        $token = createJWT($user['id'], $user['email']);
+        $token = createJWT(
+            $user['id'],
+            $user['email']
+        );
 
         return [
             'success' => true,
@@ -133,12 +172,24 @@ class AuthController {
         ];
     }
 
-    public function profile() {
+    public function profile()
+    {
         $user = requireAuth();
+
         $userId = $user['userId'];
+
         $idCol = $this->getUserIdColumn();
-        $result = $this->db->query("SELECT $idCol as id, name, email, created_at FROM user WHERE $idCol = $userId");
-        
+
+        $result = $this->db->query(
+            "SELECT
+                $idCol AS id,
+                name,
+                email,
+                created_at
+             FROM user
+             WHERE $idCol = $userId"
+        );
+
         if ($result->num_rows === 0) {
             return [
                 'success' => false,
@@ -154,4 +205,3 @@ class AuthController {
         ];
     }
 }
-?>
