@@ -9,26 +9,19 @@ header("Cache-Control: no-store");
 header("Pragma: no-cache");
 
 // CORS
-$allowedOrigins = [
-    'https://ce-six.vercel.app',
-    'https://store-ecommerce-six.vercel.app',
-    'https://store-ecommerce-ro3pmju2q-grismaldi-lopez.vercel.app',
-    'http://localhost',
-    'http://localhost:5173',
-    'http://127.0.0.1',
-    'http://127.0.0.1:5173'
-];
-
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if (in_array($origin, $allowedOrigins, true)) {
+if ($origin !== '') {
     header("Access-Control-Allow-Origin: $origin");
     header("Vary: Origin");
+} else {
+    header("Access-Control-Allow-Origin: *");
 }
 
 header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Max-Age: 86400");
 
 // Responder al preflight CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
