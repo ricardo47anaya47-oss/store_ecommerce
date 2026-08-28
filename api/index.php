@@ -1,29 +1,26 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ob_start();
 
-header("Content-Type: application/json; charset=UTF-8");
-header("Cache-Control: no-store");
-header("Pragma: no-cache");
+$allowedOrigins = [
+    'https://store-ecommerce-six.vercel.app',
+    'http://localhost:5173',
+    'http://localhost'
+];
 
-// CORS
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if ($origin !== '') {
+if (in_array($origin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: $origin");
     header("Vary: Origin");
-} else {
-    header("Access-Control-Allow-Origin: *");
 }
 
 header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Max-Age: 86400");
+header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store");
+header("Pragma: no-cache");
 
-// Responder al preflight CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -34,8 +31,6 @@ require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ProductController.php';
 require_once __DIR__ . '/controllers/CartController.php';
 require_once __DIR__ . '/controllers/PurchaseController.php';
-
-ob_start();
 
 function sendJson($payload, $statusCode = 200)
 {

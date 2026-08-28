@@ -1,6 +1,43 @@
-const API_URL = 'https://dummyjson.com';
-
 export const productService = {
+
+  getAll: async (page = 1, limit = 12) => {
+    return apiCall(`/products?page=${page}&limit=${limit}`, {
+      method: 'GET'
+    });
+  },
+
+  getById: async (id) => {
+    return apiCall(`/products/${id}`, {
+      method: 'GET'
+    });
+  },
+
+  search: async (query) => {
+    return apiCall(
+      `/products/search?q=${encodeURIComponent(query)}`,
+      {
+        method: 'GET'
+      }
+    );
+  },
+
+  getByCategory: async (category, page = 1, limit = 12) => {
+    return apiCall(
+      `/products/category/${encodeURIComponent(category)}?page=${page}&limit=${limit}`,
+      {
+        method: 'GET'
+      }
+    );
+  },
+
+  getCategories: async () => {
+    return apiCall('/products/categories/list', {
+      method: 'GET'
+    });
+  }
+};
+
+/*export const productService = {
   // Obtener todos los productos
   getAllProducts: async () => {
     try {
@@ -71,4 +108,4 @@ export const productService = {
       throw error;
     }
   },
-};
+}; */

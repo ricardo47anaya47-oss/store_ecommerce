@@ -13,41 +13,45 @@ class AuthController
         $this->db = new Database();
     }
 
-    private function getUserIdColumn()
-    {
-        return 'id';
-    }
-
     public function register()
     {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (
-            !isset($data['email']) ||
-            !isset($data['password']) ||
-            !isset($data['name'])
-        ) {
+        if (!is_array($data)) {
             return [
                 'success' => false,
-                'message' => 'Email, contraseña y nombre son requeridos'
+                'message' => 'Datos inválidos'
             ];
         }
 
-        $email = $this->db->escape($data['email']);
-        $name = $this->db->escape($data['name']);
+        $name = trim($data['name'] ?? '');
+        $lastName = trim($data['lastName'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
 
-        $lastName = isset($data['lastName'])
-            ? $this->db->escape($data['lastName'])
-            : '';
+        if ($name === '' || $email === '' || $password === '') {
+            return [
+                'success' => false,
+                'message' => 'Nombre, email y contraseña son requeridos'
+            ];
+        }
 
-        $password = password_hash(
-            $data['password'],
-            PASSWORD_DEFAULT
-        );
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return [
+                'success' => false,
+                'message' => 'El email no es válido'
+            ];
+        }
 
-        // Comprobar si existe el usuario
+        if (strlen($password) < 6) {
+            return [
+                'success' => false,
+                'message' => 'La contraseña debe tener al menos 6 caracteres'
+            ];
+        }
+
         $stmt = $this->db->prepare(
-            "SELECT id FROM user WHERE email = ?"
+            "SELECT id FROM user WHERE email = ? LIMIT 1"
         );
 
         $stmt->bind_param("s", $email);
@@ -62,7 +66,11 @@ class AuthController
             ];
         }
 
-        // Crear usuario
+        $hashedPassword = password_hash(
+            $password,
+            PASSWORD_DEFAULT
+        );
+
         $stmt = $this->db->prepare(
             "INSERT INTO user
             (name, last_name, email, password, created_at)
@@ -74,13 +82,13 @@ class AuthController
             $name,
             $lastName,
             $email,
-            $password
+            $hashedPassword
         );
 
         if (!$stmt->execute()) {
             return [
                 'success' => false,
-                'message' => 'Error en el registro'
+                'message' => 'Error al crear el usuario'
             ];
         }
 
@@ -98,6 +106,7 @@ class AuthController
             'user' => [
                 'id' => $userId,
                 'name' => $name,
+                'lastName' => $lastName,
                 'email' => $email
             ]
         ];
@@ -110,48 +119,48 @@ class AuthController
             true
         );
 
-        if (
-            !isset($data['email']) ||
-            !isset($data['password'])
-        ) {
+        if (!is_array($data)) {
+            return [
+                'success' => false,
+                'message' => 'Datos inválidos'
+            ];
+        }
+
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
+
+        if ($email === '' || $password === '') {
             return [
                 'success' => false,
                 'message' => 'Email y contraseña son requeridos'
             ];
         }
 
-        $email = $this->db->escape($data['email']);
-
-        $idCol = $this->getUserIdColumn();
-
-        $result = $this->db->query(
-            "SELECT
-                $idCol AS id,
-                name,
-                email,
-                password
+        $stmt = $this->db->prepare(
+            "SELECT id, name, last_name, email, password
              FROM user
-             WHERE email = '$email'"
+             WHERE email = ?
+             LIMIT 1"
         );
+
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
 
         if ($result->num_rows === 0) {
             return [
                 'success' => false,
-                'message' => 'El email no está registrado'
+                'message' => 'Email o contraseña incorrectos'
             ];
         }
 
         $user = $result->fetch_assoc();
 
-        if (
-            !password_verify(
-                $data['password'],
-                $user['password']
-            )
-        ) {
+        if (!password_verify($password, $user['password'])) {
             return [
                 'success' => false,
-                'message' => 'Contraseña incorrecta'
+                'message' => 'Email o contraseña incorrectos'
             ];
         }
 
@@ -167,6 +176,7 @@ class AuthController
             'user' => [
                 'id' => $user['id'],
                 'name' => $user['name'],
+                'lastName' => $user['last_name'],
                 'email' => $user['email']
             ]
         ];
@@ -176,19 +186,19 @@ class AuthController
     {
         $user = requireAuth();
 
-        $userId = $user['userId'];
+        $userId = (int)$user['userId'];
 
-        $idCol = $this->getUserIdColumn();
-
-        $result = $this->db->query(
-            "SELECT
-                $idCol AS id,
-                name,
-                email,
-                created_at
+        $stmt = $this->db->prepare(
+            "SELECT id, name, last_name, email, created_at
              FROM user
-             WHERE $idCol = $userId"
+             WHERE id = ?
+             LIMIT 1"
         );
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
 
         if ($result->num_rows === 0) {
             return [
@@ -201,7 +211,13 @@ class AuthController
 
         return [
             'success' => true,
-            'user' => $userData
+            'user' => [
+                'id' => $userData['id'],
+                'name' => $userData['name'],
+                'lastName' => $userData['last_name'],
+                'email' => $userData['email'],
+                'created_at' => $userData['created_at']
+            ]
         ];
     }
 }

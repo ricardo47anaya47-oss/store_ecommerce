@@ -4,9 +4,12 @@ const getToken = () => localStorage.getItem("token");
 
 const apiCall = async (endpoint, options = {}) => {
   const headers = {
-    "Content-Type": "application/json",
-    ...(options.headers || {})
+    ...(options.headers || {}),
   };
+
+  if (options.body) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const token = getToken();
 
@@ -17,7 +20,7 @@ const apiCall = async (endpoint, options = {}) => {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
-      headers
+      headers,
     });
 
     const text = await response.text();
@@ -27,7 +30,9 @@ const apiCall = async (endpoint, options = {}) => {
     try {
       data = text ? JSON.parse(text) : {};
     } catch {
-      throw new Error(`Respuesta inválida del servidor:\n${text}`);
+      throw new Error(
+        `Respuesta inválida del servidor:\n${text}`
+      );
     }
 
     if (!response.ok) {
@@ -36,7 +41,9 @@ const apiCall = async (endpoint, options = {}) => {
         localStorage.removeItem("user");
       }
 
-      throw new Error(data.message || "Error del servidor");
+      throw new Error(
+        data.message || `Error HTTP ${response.status}`
+      );
     }
 
     return data;
@@ -45,7 +52,7 @@ const apiCall = async (endpoint, options = {}) => {
 
     return {
       success: false,
-      message: error.message
+      message: error.message || "Error de conexión con la API",
     };
   }
 };
@@ -53,117 +60,39 @@ const apiCall = async (endpoint, options = {}) => {
 // Product Services
 export const productService = {
   getAll: async (page = 1, limit = 12) => {
-    try {
-      const skip = (page - 1) * limit;
-      const response = await fetch(`https://dummyjson.com/products?skip=${skip}&limit=${limit}`);
-      const data = await response.json();
-      
-      return {
-        success: true,
-        data: data.products,
-        pagination: {
-          page: page,
-          limit: limit,
-          total: data.total,
-          pages: Math.ceil(data.total / limit)
-        }
-      };
-    } catch (err) {
-      return {
-        success: false,
-        message: err.message
-      };
-    }
+    return apiCall(`/products?page=${page}&limit=${limit}`, {
+      method: "GET",
+    });
   },
 
   getById: async (id) => {
-    try {
-      const response = await fetch(`https://dummyjson.com/products/${id}`);
-      const data = await response.json();
-      
-      if (data.id) {
-        return {
-          success: true,
-          data: data
-        };
-      } else {
-        return {
-          success: false,
-          message: 'Producto no encontrado'
-        };
-      }
-    } catch (err) {
-      return {
-        success: false,
-        message: err.message
-      };
-    }
+    return apiCall(`/products/${id}`, {
+      method: "GET",
+    });
   },
 
   search: async (query) => {
-    try {
-      const response = await fetch(`https://dummyjson.com/products/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      
-      return {
-        success: true,
-        data: data.products,
-        pagination: {
-          page: 1,
-          limit: data.products.length,
-          total: data.total,
-          pages: 1
-        }
-      };
-    } catch (err) {
-      return {
-        success: false,
-        message: err.message
-      };
-    }
+    return apiCall(
+      `/products/search?q=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+      }
+    );
   },
 
   getByCategory: async (category, page = 1, limit = 12) => {
-    try {
-      const response = await fetch(`https://dummyjson.com/products/category/${encodeURIComponent(category)}`);
-      const data = await response.json();
-      
-      const skip = (page - 1) * limit;
-      const paginatedProducts = data.products.slice(skip, skip + limit);
-      
-      return {
-        success: true,
-        data: paginatedProducts,
-        pagination: {
-          page: page,
-          limit: limit,
-          total: data.products.length,
-          pages: Math.ceil(data.products.length / limit)
-        }
-      };
-    } catch (err) {
-      return {
-        success: false,
-        message: err.message
-      };
-    }
+    return apiCall(
+      `/products/category/${encodeURIComponent(category)}?page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+      }
+    );
   },
 
   getCategories: async () => {
-    try {
-      const response = await fetch('https://dummyjson.com/products/categories');
-      const categories = await response.json();
-      
-      return {
-        success: true,
-        data: categories
-      };
-    } catch (err) {
-      return {
-        success: false,
-        message: err.message
-      };
-    }
+    return apiCall("/products/categories/list", {
+      method: "GET",
+    });
   },
 };
 
