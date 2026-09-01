@@ -1,4 +1,9 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'https://store-ecommerce.infinityfree.me/api').replace(/\/$/, '');
+const DEFAULT_API_URL =
+  window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+    ? 'http://localhost/store_ecommerce/api'
+    : 'https://store-ecommerce.infinityfree.me/api';
+
+const API_URL = (import.meta.env.VITE_API_URL || DEFAULT_API_URL).replace(/\/$/, '');
 
 const getToken = () => localStorage.getItem("token");
 

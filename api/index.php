@@ -5,13 +5,25 @@ ob_start();
 $allowedOrigins = [
     'https://store-ecommerce-six.vercel.app',
     'http://localhost:5173',
-    'http://localhost'
+    'http://localhost',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000'
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if (in_array($origin, $allowedOrigins, true)) {
+$frontendUrl = getenv('FRONTEND_URL') ?: getenv('APP_ORIGIN') ?: '';
+if ($frontendUrl !== '') {
+    $allowedOrigins[] = rtrim($frontendUrl, '/');
+}
+
+$isAllowedOrigin = in_array($origin, $allowedOrigins, true)
+    || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin) === 1
+    || preg_match('/^https:\/\/.*\.vercel\.preview\.app$/', $origin) === 1;
+
+if ($origin !== '' && $isAllowedOrigin) {
     header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
     header("Vary: Origin");
 }
 
