@@ -2,24 +2,14 @@
 
 ob_start();
 
-$allowedOrigins = [
-    'https://store-ecommerce-six.vercel.app',
-    'http://localhost:5173',
-    'http://localhost'
-];
-
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-
-if (in_array($origin, $allowedOrigins, true)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Vary: Origin");
-}
-
-header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Content-Type: application/json; charset=UTF-8");
-header("Cache-Control: no-store");
-header("Pragma: no-cache");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+header('Vary: Origin');
+header('Content-Type: application/json; charset=UTF-8');
+header('Cache-Control: no-store');
+header('Pragma: no-cache');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
