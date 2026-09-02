@@ -4,33 +4,24 @@ class Database
 {
     private $connection;
 
-    private $host;
-    private $user;
-    private $pass;
-    private $db;
-    private $port;
-
     public function __construct()
     {
-        $this->host = DB_HOST = envOrDefault('DB_HOST', 'sql208.infinityfree.com');
-        $this->user = DB_USER = envOrDefault('DB_USER', 'if0_42533402');
-        $this->pass = DB_PASS = envOrDefault('DB_PASS', 'nQY2doalEG6');
-        $this->db   = DB_NAME = envOrDefault('DB_NAME', 'if0_42533402_proyecto');
-        $this->port = DB_PORT = (int) envOrDefault('DB_PORT', 3306);
-
         $this->connect();
     }
 
+    /**
+     * Establecer conexión con MySQL
+     */
     private function connect()
     {
         mysqli_report(MYSQLI_REPORT_OFF);
 
         $this->connection = new mysqli(
-            $this->host,
-            $this->user,
-            $this->pass,
-            $this->db,
-            $this->port
+            DB_HOST,
+            DB_USER,
+            DB_PASS,
+            DB_NAME,
+            DB_PORT
         );
 
         if ($this->connection->connect_errno) {
@@ -47,27 +38,34 @@ class Database
             );
 
             echo json_encode([
-                "success" => false,
-                "message" => "No fue posible conectar con la base de datos."
+                'success' => false,
+                'message' => 'No fue posible conectar con la base de datos.'
             ]);
 
             exit;
         }
 
-        if (!$this->connection->set_charset("utf8mb4")) {
+        // UTF-8 para caracteres especiales
+        if (!$this->connection->set_charset('utf8mb4')) {
 
             error_log(
-                "Error al establecer charset: " .
+                'Error al establecer charset: ' .
                 $this->connection->error
             );
         }
     }
 
+    /**
+     * Obtener conexión mysqli
+     */
     public function getConnection()
     {
         return $this->connection;
     }
 
+    /**
+     * Ejecutar consulta SQL directa
+     */
     public function query($sql)
     {
         $result = $this->connection->query($sql);
@@ -75,18 +73,21 @@ class Database
         if ($result === false) {
 
             error_log(
-                "Error SQL: " .
+                'Error SQL: ' .
                 $this->connection->error
             );
 
             throw new Exception(
-                "Error al ejecutar la consulta."
+                'Error al ejecutar la consulta.'
             );
         }
 
         return $result;
     }
 
+    /**
+     * Preparar consulta SQL
+     */
     public function prepare($sql)
     {
         $stmt = $this->connection->prepare($sql);
@@ -94,37 +95,50 @@ class Database
         if ($stmt === false) {
 
             error_log(
-                "Error preparando SQL: " .
+                'Error preparando SQL: ' .
                 $this->connection->error
             );
 
             throw new Exception(
-                "Error al preparar la consulta."
+                'Error al preparar la consulta.'
             );
         }
 
         return $stmt;
     }
 
+    /**
+     * Escapar texto
+     */
     public function escape($string)
     {
         return $this->connection->real_escape_string($string);
     }
 
+    /**
+     * ID del último registro insertado
+     */
     public function lastInsertId()
     {
         return $this->connection->insert_id;
     }
 
+    /**
+     * Número de filas afectadas
+     */
     public function affectedRows()
     {
         return $this->connection->affected_rows;
     }
 
+    /**
+     * Cerrar conexión
+     */
     public function close()
     {
         if ($this->connection instanceof mysqli) {
             $this->connection->close();
+            $this->connection = null;
         }
     }
 
@@ -133,3 +147,4 @@ class Database
         $this->close();
     }
 }
+?>

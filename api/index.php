@@ -21,12 +21,18 @@ if (in_array($origin, $allowedOrigins, true)) {
     header("Vary: Origin");
 }
 
-header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header(
+    'Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Requested-With'
+);
 
-header("Content-Type: application/json; charset=UTF-8");
-header("Cache-Control: no-store");
-header("Pragma: no-cache");
+header(
+    'Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS'
+);
+
+header('Content-Type: application/json; charset=UTF-8');
+header('Cache-Control: no-store');
+header('Pragma: no-cache');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+
 /*
 |--------------------------------------------------------------------------
 | Archivos necesarios
@@ -50,6 +57,7 @@ require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ProductController.php';
 require_once __DIR__ . '/controllers/CartController.php';
 require_once __DIR__ . '/controllers/PurchaseController.php';
+
 
 /*
 |--------------------------------------------------------------------------
@@ -69,11 +77,13 @@ function sendJson($payload, $statusCode = 200)
 
     echo json_encode(
         $payload,
-        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES
     );
 
     exit;
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -81,26 +91,46 @@ function sendJson($payload, $statusCode = 200)
 |--------------------------------------------------------------------------
 */
 
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+
 $request = parse_url(
-    $_SERVER['REQUEST_URI'],
+    $requestUri,
     PHP_URL_PATH
 );
+
 
 /*
 |--------------------------------------------------------------------------
 | Eliminar /api de la URL
 |--------------------------------------------------------------------------
+|
+| Ejemplo:
+|
+| /api/products
+|
+| se convierte en:
+|
+| /products
+|
+|--------------------------------------------------------------------------
 */
 
 $basePath = dirname($_SERVER['SCRIPT_NAME']);
 
-if ($basePath !== '/' && strpos($request, $basePath) === 0) {
-    $request = substr($request, strlen($basePath));
+if ($basePath !== '/' && $basePath !== '\\') {
+
+    if (strpos($request, $basePath) === 0) {
+        $request = substr(
+            $request,
+            strlen($basePath)
+        );
+    }
 }
 
 $request = '/' . trim($request, '/');
 
-$method = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
 
 /*
 |--------------------------------------------------------------------------
@@ -108,10 +138,17 @@ $method = $_SERVER['REQUEST_METHOD'];
 |--------------------------------------------------------------------------
 */
 
+
 /*
- * POST /api/auth/register
- */
-if ($request === '/auth/register' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/auth/register
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/auth/register' &&
+    $method === 'POST'
+) {
 
     $controller = new AuthController();
 
@@ -120,10 +157,17 @@ if ($request === '/auth/register' && $method === 'POST') {
     sendJson($response);
 }
 
+
 /*
- * POST /api/auth/login
- */
-if ($request === '/auth/login' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/auth/login
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/auth/login' &&
+    $method === 'POST'
+) {
 
     $controller = new AuthController();
 
@@ -132,10 +176,17 @@ if ($request === '/auth/login' && $method === 'POST') {
     sendJson($response);
 }
 
+
 /*
- * GET /api/auth/profile
- */
-if ($request === '/auth/profile' && $method === 'GET') {
+|--------------------------------------------------------------------------
+| GET /api/auth/profile
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/auth/profile' &&
+    $method === 'GET'
+) {
 
     $controller = new AuthController();
 
@@ -144,16 +195,24 @@ if ($request === '/auth/profile' && $method === 'GET') {
     sendJson($response);
 }
 
+
 /*
 |--------------------------------------------------------------------------
 | PRODUCTOS
 |--------------------------------------------------------------------------
 */
 
+
 /*
- * GET /api/products
- */
-if ($request === '/products' && $method === 'GET') {
+|--------------------------------------------------------------------------
+| GET /api/products
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/products' &&
+    $method === 'GET'
+) {
 
     $controller = new ProductController();
 
@@ -162,34 +221,21 @@ if ($request === '/products' && $method === 'GET') {
     sendJson($response);
 }
 
+
 /*
- * GET /api/products/123
- */
+|--------------------------------------------------------------------------
+| GET /api/products/search
+|--------------------------------------------------------------------------
+|
+| IMPORTANTE:
+| Esta ruta debe estar antes de /products/{id}.
+|--------------------------------------------------------------------------
+*/
+
 if (
-    preg_match(
-        '/^\/products\/(\d+)$/',
-        $request,
-        $matches
-    ) &&
+    $request === '/products/search' &&
     $method === 'GET'
 ) {
-
-    $id = (int) $matches[1];
-
-    $controller = new ProductController();
-
-    $response = $controller->getById($id);
-
-    sendJson($response);
-}
-
-/*
- * GET /api/products/search
- *
- * IMPORTANTE:
- * Esta ruta debe estar antes de /products/{id}.
- */
-if ($request === '/products/search' && $method === 'GET') {
 
     $controller = new ProductController();
 
@@ -198,12 +244,35 @@ if ($request === '/products/search' && $method === 'GET') {
     sendJson($response);
 }
 
+
 /*
- * GET /api/products/category/electronics
- */
+|--------------------------------------------------------------------------
+| GET /api/products/categories/list
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/products/categories/list' &&
+    $method === 'GET'
+) {
+
+    $controller = new ProductController();
+
+    $response = $controller->getCategories();
+
+    sendJson($response);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GET /api/products/category/electronics
+|--------------------------------------------------------------------------
+*/
+
 if (
     preg_match(
-        '/^\/products\/category\/(.+)$/',
+        '#^/products/category/(.+)$#',
         $request,
         $matches
     ) &&
@@ -219,20 +288,31 @@ if (
     sendJson($response);
 }
 
+
 /*
- * GET /api/products/categories/list
- */
+|--------------------------------------------------------------------------
+| GET /api/products/123
+|--------------------------------------------------------------------------
+*/
+
 if (
-    $request === '/products/categories/list' &&
+    preg_match(
+        '#^/products/(\d+)$#',
+        $request,
+        $matches
+    ) &&
     $method === 'GET'
 ) {
 
+    $id = (int) $matches[1];
+
     $controller = new ProductController();
 
-    $response = $controller->getCategories();
+    $response = $controller->getById($id);
 
     sendJson($response);
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -240,10 +320,17 @@ if (
 |--------------------------------------------------------------------------
 */
 
+
 /*
- * GET /api/cart
- */
-if ($request === '/cart' && $method === 'GET') {
+|--------------------------------------------------------------------------
+| GET /api/cart
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/cart' &&
+    $method === 'GET'
+) {
 
     try {
 
@@ -253,9 +340,12 @@ if ($request === '/cart' && $method === 'GET') {
 
         sendJson($response);
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
 
-        error_log($e->getMessage());
+        error_log(
+            'Error GET /cart: ' .
+            $e->getMessage()
+        );
 
         sendJson([
             'success' => false,
@@ -264,10 +354,17 @@ if ($request === '/cart' && $method === 'GET') {
     }
 }
 
+
 /*
- * POST /api/cart/add
- */
-if ($request === '/cart/add' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/cart/add
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/cart/add' &&
+    $method === 'POST'
+) {
 
     try {
 
@@ -277,21 +374,31 @@ if ($request === '/cart/add' && $method === 'POST') {
 
         sendJson($response);
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
 
-        error_log($e->getMessage());
+        error_log(
+            'Error POST /cart/add: ' .
+            $e->getMessage()
+        );
 
         sendJson([
             'success' => false,
-            'message' => 'Error interno del servidor.'
+            'message' => 'Error interno del servidor'
         ], 500);
     }
 }
 
+
 /*
- * POST /api/cart/remove
- */
-if ($request === '/cart/remove' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/cart/remove
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/cart/remove' &&
+    $method === 'POST'
+) {
 
     try {
 
@@ -301,21 +408,31 @@ if ($request === '/cart/remove' && $method === 'POST') {
 
         sendJson($response);
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
 
-        error_log($e->getMessage());
+        error_log(
+            'Error POST /cart/remove: ' .
+            $e->getMessage()
+        );
 
         sendJson([
             'success' => false,
-            'message' => 'Error al eliminar producto del carrito.'
+            'message' => 'Error al eliminar producto del carrito'
         ], 500);
     }
 }
 
+
 /*
- * POST /api/cart/update
- */
-if ($request === '/cart/update' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/cart/update
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/cart/update' &&
+    $method === 'POST'
+) {
 
     try {
 
@@ -325,21 +442,31 @@ if ($request === '/cart/update' && $method === 'POST') {
 
         sendJson($response);
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
 
-        error_log($e->getMessage());
+        error_log(
+            'Error POST /cart/update: ' .
+            $e->getMessage()
+        );
 
         sendJson([
             'success' => false,
-            'message' => 'Error al actualizar carrito.'
+            'message' => 'Error al actualizar carrito'
         ], 500);
     }
 }
 
+
 /*
- * POST /api/cart/clear
- */
-if ($request === '/cart/clear' && $method === 'POST') {
+|--------------------------------------------------------------------------
+| POST /api/cart/clear
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $request === '/cart/clear' &&
+    $method === 'POST'
+) {
 
     try {
 
@@ -349,16 +476,20 @@ if ($request === '/cart/clear' && $method === 'POST') {
 
         sendJson($response);
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
 
-        error_log($e->getMessage());
+        error_log(
+            'Error POST /cart/clear: ' .
+            $e->getMessage()
+        );
 
         sendJson([
             'success' => false,
-            'message' => 'Error al vaciar carrito.'
+            'message' => 'Error al vaciar carrito'
         ], 500);
     }
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -366,101 +497,114 @@ if ($request === '/cart/clear' && $method === 'POST') {
 |--------------------------------------------------------------------------
 */
 
+
 /*
- * POST /api/purchases/create
- */
+|--------------------------------------------------------------------------
+| POST /api/purchases/create
+|--------------------------------------------------------------------------
+*/
+
 if (
     $request === '/purchases/create' &&
     $method === 'POST'
 ) {
 
-    $controller = new PurchaseController();
+    try {
 
-    $response = $controller->createPurchase();
+        $controller = new PurchaseController();
 
-    sendJson($response);
+        $response = $controller->createPurchase();
+
+        sendJson($response);
+
+    } catch (Throwable $e) {
+
+        error_log(
+            'Error POST /purchases/create: ' .
+            $e->getMessage()
+        );
+
+        sendJson([
+            'success' => false,
+            'message' => 'Error al crear la compra'
+        ], 500);
+    }
 }
 
+
 /*
- * GET /api/purchases
- */
+|--------------------------------------------------------------------------
+| GET /api/purchases
+|--------------------------------------------------------------------------
+*/
+
 if (
     $request === '/purchases' &&
     $method === 'GET'
 ) {
 
-    $controller = new PurchaseController();
+    try {
 
-    $response = $controller->getUserPurchases();
+        $controller = new PurchaseController();
 
-    sendJson($response);
+        $response = $controller->getUserPurchases();
+
+        sendJson($response);
+
+    } catch (Throwable $e) {
+
+        error_log(
+            'Error GET /purchases: ' .
+            $e->getMessage()
+        );
+
+        sendJson([
+            'success' => false,
+            'message' => 'Error al obtener compras'
+        ], 500);
+    }
 }
 
+
 /*
- * GET /api/purchases/123
- */
+|--------------------------------------------------------------------------
+| GET /api/purchases/123
+|--------------------------------------------------------------------------
+*/
+
 if (
     preg_match(
-        '/^\/purchases\/(\d+)$/',
+        '#^/purchases/(\d+)$#',
         $request,
         $matches
     ) &&
     $method === 'GET'
 ) {
 
-    $id = (int) $matches[1];
+    try {
 
-    $controller = new PurchaseController();
+        $id = (int) $matches[1];
 
-    $response = $controller->getPurchaseById($id);
+        $controller = new PurchaseController();
 
-    sendJson($response);
+        $response = $controller->getPurchaseById($id);
+
+        sendJson($response);
+
+    } catch (Throwable $e) {
+
+        error_log(
+            'Error GET /purchases/{id}: ' .
+            $e->getMessage()
+        );
+
+        sendJson([
+            'success' => false,
+            'message' => 'Error al obtener la compra'
+        ], 500);
+    }
 }
 
-/*
- * GET /api/purchases/admin/list
- */
-if (
-    $request === '/purchases/admin/list' &&
-    $method === 'GET'
-) {
-
-    $controller = new PurchaseController();
-
-    $response = $controller->getAllPurchases();
-
-    sendJson($response);
-}
-
-/*
- * GET /api/purchases/admin/stats
- */
-if (
-    $request === '/purchases/admin/stats' &&
-    $method === 'GET'
-) {
-
-    $controller = new PurchaseController();
-
-    $response = $controller->getPurchaseStats();
-
-    sendJson($response);
-}
-
-/*
- * POST /api/purchases/admin/update-status
- */
-if (
-    $request === '/purchases/admin/update-status' &&
-    $method === 'POST'
-) {
-
-    $controller = new PurchaseController();
-
-    $response = $controller->updatePurchaseStatus();
-
-    sendJson($response);
-}
 
 /*
 |--------------------------------------------------------------------------
