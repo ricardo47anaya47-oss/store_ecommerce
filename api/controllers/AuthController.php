@@ -73,8 +73,8 @@ class AuthController
 
         $stmt = $this->db->prepare(
             "INSERT INTO user
-            (name, last_name, email, password, created_at)
-            VALUES (?, ?, ?, ?, NOW())"
+            (name, last_name, email, password)
+            VALUES (?, ?, ?, ?)"
         );
 
         $stmt->bind_param(
@@ -189,7 +189,7 @@ class AuthController
         $userId = (int)$user['userId'];
 
         $stmt = $this->db->prepare(
-            "SELECT id, name, last_name, email, created_at
+            "SELECT id, name, last_name, email,
              FROM user
              WHERE id = ?
              LIMIT 1"
