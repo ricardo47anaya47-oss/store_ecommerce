@@ -1,4 +1,11 @@
 <?php
+
+// Mostrar errores de PHP para depuración (BORRAR EN PRODUCCIÓN)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// ... aquí continúa el resto de tu código original ...
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
 
 if (!empty($_SERVER['HTTP_ORIGIN'])) {

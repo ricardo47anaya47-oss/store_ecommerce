@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # 1. Regla de oro: Dejar pasar todas las peticiones a la carpeta /api/ sin interferir
+  RewriteRule ^api/ - [L]
+  
+  # 2. Si no es un archivo o carpeta física, envíalo al index.html de React
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

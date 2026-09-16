@@ -1,14 +1,9 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  
-  # Si el archivo o carpeta existe físicamente (como imágenes o archivos JS), muéstralo
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  
-  # EXCEPCIÓN MUY IMPORTANTE: Ignorar la carpeta /api/ para que tu backend en PHP siga funcionando
-  RewriteCond %{REQUEST_URI} !^/api/
-  
-  # Si no es un archivo físico ni es la API, envía la petición al index.html de React
-  RewriteRule . /index.html [L]
+    RewriteEngine On
+    RewriteBase /api/
+    
+    # Si la ruta no es un archivo o carpeta física, envíala al index.php de la API
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
