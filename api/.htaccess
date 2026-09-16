@@ -1,14 +1,14 @@
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteRule ^index\.php$ - [L]
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule . index.php [L]
-</IfModule>
-
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
-    Header always set Access-Control-Max-Age "86400"
+  RewriteEngine On
+  RewriteBase /
+  
+  # Si el archivo o carpeta existe físicamente (como imágenes o archivos JS), muéstralo
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # EXCEPCIÓN MUY IMPORTANTE: Ignorar la carpeta /api/ para que tu backend en PHP siga funcionando
+  RewriteCond %{REQUEST_URI} !^/api/
+  
+  # Si no es un archivo físico ni es la API, envía la petición al index.html de React
+  RewriteRule . /index.html [L]
 </IfModule>
