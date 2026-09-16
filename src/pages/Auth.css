@@ -1,0 +1,256 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.auth-card {
+  background: white;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.auth-card h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+.auth-form {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.auth-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.field-error {
+  display: block;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  animation: slideInDown 0.3s ease;
+}
+
+.form-group input.has-error {
+  border-color: #e74c3c !important;
+  background-color: rgba(231, 76, 60, 0.05);
+}
+
+.form-group input.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.field-error {
+  display: block;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  animation: slideInDown 0.3s ease;
+}
+
+.form-group input.has-error {
+  border-color: #e74c3c !important;
+  background-color: rgba(231, 76, 60, 0.05);
+}
+
+.form-group input.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 30px 10px;
+  }
+
+  .auth-card {
+    padding: 40px 25px;
+  }
+
+  .auth-card h1 {
+    font-size: 1.8rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-group input {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
+  .submit-btn {
+    padding: 11px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 20px 5px;
+  }
+
+  .auth-card {
+    padding: 25px 15px;
+    max-width: 95vw;
+  }
+
+  .auth-card h1 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+
+  .auth-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .form-group input {
+    padding: 9px;
+    font-size: 0.9rem;
+  }
+
+  .submit-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .auth-footer {
+    font-size: 0.85rem;
+  }
+
+  .auth-footer a {
+    display: inline;
+  }
+}

@@ -1,0 +1,161 @@
+.product-filters {
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.filters-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.filters-header:hover {
+  background-color: #e9ecef;
+}
+
+.filters-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #2c3e50;
+}
+
+.toggle-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  color: #667eea;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.filters-content {
+  padding: 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: expandFilters 0.3s ease;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: white;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-select:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.price-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.price-input label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.price-input input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.price-input input:hover,
+.price-input input:focus {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.price-separator {
+  color: #adb5bd;
+  margin: 0 4px;
+}
+
+.price-display {
+  font-size: 0.95rem;
+  color: #667eea;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+  text-align: center;
+}
+
+@keyframes expandFilters {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-header {
+    padding: 14px 16px;
+  }
+
+  .filters-content {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .price-range {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .price-input {
+    width: 100%;
+  }
+}
