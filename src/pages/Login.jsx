@@ -4,7 +4,8 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './Auth.css'; // Usamos los mismos estilos que en Register.jsx
 
 export const Login = () => {
   // 1. Definición de Estados
@@ -13,25 +14,24 @@ export const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Hook para redirigir al usuario a otra página después de iniciar sesión
+  // Hook para redirigir al usuario
   const navigate = useNavigate();
 
   const API_URL = 'https://stroreecommerce.infinityfreeapp.com/api';
 
   // 2. Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita que la página se recargue al enviar el formulario
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // 3. Petición POST hacia el endpoint de login en PHP
+      // 3. Petición POST hacia el backend
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // Convertimos los datos del estado a formato JSON para enviarlos
         body: JSON.stringify({
           email: email,
           password: password
@@ -40,19 +40,15 @@ export const Login = () => {
 
       const data = await response.json();
 
-      // 4. Evaluar la respuesta del backend
+      // 4. Evaluar la respuesta
       if (data.success) {
-        // ¡Éxito! Guardamos el token en el navegador
         localStorage.setItem('token', data.token);
-        
-        // Opcional: También puedes guardar los datos del usuario si tu API los devuelve
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        // Redirigir al usuario a la página principal del catálogo
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
         navigate('/'); 
       } else {
-        // Si el correo o contraseña son incorrectos, mostramos el mensaje del backend
-        setError(data.message);
+        setError(data.message || 'Credenciales incorrectas');
       }
     } catch (err) {
       setError('Ocurrió un error al intentar conectar con el servidor.');
@@ -63,35 +59,49 @@ export const Login = () => {
   };
 
   return (
-    <div>
-      <h2>Iniciar Sesión</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Iniciar Sesión</h1>
+        <p className="auth-subtitle">Ingresa tus datos para acceder a tu cuenta</p>
 
-      <form onSubmit={handleSubmit}>
-        <div style={styles.inputGroup}>
-          <label htmlFor="email">Correo Electrónico:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        {/* Mostrar mensaje de error si la autenticación falla */}
+        {error && <div className="field-error" style={{ marginBottom: '15px', textTransform: 'none' }}>{error}</div>}
 
-        <div>
-          <label htmlFor="password">Contraseña:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email">Correo Electrónico</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Ingresando...' : 'Entrar a la Tienda'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link></p>
+          <Link to="/">Volver al inicio</Link>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Ingresando...' : 'Entrar a la Tienda'}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
