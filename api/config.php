@@ -1,7 +1,25 @@
 <?php
-// ============================================================
-// ARCHIVO: config.php
-// ============================================================
+
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $headers = array();
+        foreach ($_SERVER as $name => $value) {
+            // Reconstruir cabeceras HTTP convencionales
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+            
+        // Extraer la cabecera de Autorización JWT si viene en REDIRECT_HTTP_AUTHORIZATION
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $headers['Authorization'] = $_SERVER['HTTP_AUTHORIZATION'];
+        } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        
+        return $headers;
+    }
+}
 
 // Credenciales de Base de Datos para InfinityFree
 define('DB_HOST', 'sql110.infinityfree.com');

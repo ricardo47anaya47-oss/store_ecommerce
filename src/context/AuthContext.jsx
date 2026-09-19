@@ -1,75 +1,66 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { authService } from '../services/apiService';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Verificar si hay token guardado al cargar
+  const API_URL = 'https://stroreecommerce.infinityfreeapp.com/api';
+
+  // Al cargar la app, comprobar si ya hay un usuario/token guardado
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (token && savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (err) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
     }
-    
     setLoading(false);
   }, []);
 
+  // Función de inicio de sesión
   const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.login({ email, password });
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Error en login');
-      }
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
-      setLoading(false);
-      
-      return response.user;
-    } catch (err) {
-      const errorMessage = err.message || 'Error en login';
-      setError(errorMessage);
-      setLoading(false);
-      throw err;
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || 'Credenciales incorrectas');
+    }
+
+    // Guardar token y usuario en localStorage
+    localStorage.setItem('token', data.token);
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(data.user); // Actualizar el estado global de React
     }
   };
 
+  // Función de registro
   const register = async (name, lastName, email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.register({ name, lastName, email, password });
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Error en registro');
-      }
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, lastName, email, password }),
+    });
 
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
-      setLoading(false);
-      
-      return response.user;
-    } catch (err) {
-      const errorMessage = err.message || 'Error en registro';
-      setError(errorMessage);
-      setLoading(false);
-      throw err;
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || 'Error al registrar usuario');
+    }
+
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+      }
     }
   };
 
@@ -77,22 +68,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    setError(null);
-  };
-
-  const value = {
-    user,
-    loading,
-    error,
-    login,
-    register,
-    logout,
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
