@@ -62,40 +62,33 @@ export const Login = () => {
     }
   };
 
-  // 5. Renderizado de la Interfaz Gráfica
   return (
-    <div style={styles.container}>
+    <div>
       <h2>Iniciar Sesión</h2>
-      
-      {/* Mostrar mensaje de error si existe */}
-      {error && <div style={styles.errorBox}>{error}</div>}
 
-      <form onSubmit={handleSubmit} style={styles.form}>
+      <form onSubmit={handleSubmit}>
         <div style={styles.inputGroup}>
           <label htmlFor="email">Correo Electrónico:</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            style={styles.input}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
-        <div style={styles.inputGroup}>
+        <div>
           <label htmlFor="password">Contraseña:</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-            style={styles.input}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
-
-        <button type="submit" disabled={loading} style={styles.button}>
+        <button type="submit" disabled={loading}>
           {loading ? 'Ingresando...' : 'Entrar a la Tienda'}
         </button>
       </form>
