@@ -184,7 +184,7 @@ class AuthController {
         $userId = $user['userId'];
         $table = $this->getUserTableName();
         $idCol = $this->getUserIdColumn();
-        $result = $this->db->query("SELECT $idCol as id, name, email, created_at FROM $table WHERE $idCol = $userId");
+        $result = $this->db->query("SELECT $idCol as id, name, email, phone, address, created_at FROM $table WHERE $idCol = $userId");
 
         if ($result->num_rows === 0) {
             return [

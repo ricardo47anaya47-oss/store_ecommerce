@@ -1,4 +1,11 @@
-const AUTH_API_URL = 'https://stroreecommerce.infinityfreeapp.com/api';
+const isLocal =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1');
+
+const AUTH_API_URL = isLocal
+  ? 'http://localhost/store_ecommerce/api'
+  : 'https://stroreecommerce.infinityfreeapp.com/api';
 
 // Utilities
 const getToken = () => localStorage.getItem('token');

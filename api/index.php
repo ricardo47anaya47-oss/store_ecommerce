@@ -68,7 +68,7 @@ $scriptName = parse_url($_SERVER['SCRIPT_NAME'] ?? '', PHP_URL_PATH) ?: '/api/in
 $rawRequestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
 $normalizedPath = preg_replace('#/index\.php#', '', $rawRequestPath);
-$normalizedPath = preg_replace('#^/api#', '', $normalizedPath);
+$normalizedPath = preg_replace('#^.*?/api#', '', $normalizedPath);
 $normalizedPath = preg_replace('#/+#', '/', $normalizedPath);
 $normalizedPath = rtrim($normalizedPath, '/');
 

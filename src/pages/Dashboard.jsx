@@ -32,19 +32,21 @@ const Dashboard = () => {
         setLoading(true);
         const response = await purchaseService.getUserPurchases();
         
-        if (response.success) {
+        if (response.success && Array.isArray(response.data)) {
           // Convertir datos del API al formato esperado
           const formattedPurchases = response.data.map(purchase => ({
             id: purchase.id,
             product: `Orden #${purchase.id}`,
-            price: parseFloat(purchase.total),
+            price: parseFloat(purchase.total) || 0,
             date: new Date(purchase.created_at).toLocaleDateString('es-ES'),
             status: formatStatus(purchase.status),
             rawStatus: purchase.status,
+            shippingAddress: purchase.shipping_address,
+            paymentMethod: purchase.payment_method,
           }));
           setPurchases(formattedPurchases);
         } else {
-          setError(response.message || 'Error al cargar compras');
+          setError(response?.message || 'No hay compras registradas');
         }
       } catch (err) {
         setError('Error al cargar compras: ' + err.message);
@@ -134,7 +136,7 @@ const Dashboard = () => {
               <div className="account-info">
                 <div className="info-field">
                   <label>Nombre</label>
-                  <p>{user.name}</p>
+                  <p>{user.name || '-'}</p>
                 </div>
                 <div className="info-field">
                   <label>Apellido</label>
@@ -142,7 +144,15 @@ const Dashboard = () => {
                 </div>
                 <div className="info-field">
                   <label>Email</label>
-                  <p>{user.email}</p>
+                  <p>{user.email || '-'}</p>
+                </div>
+                <div className="info-field">
+                  <label>Teléfono</label>
+                  <p>{user.phone || 'No registrado'}</p>
+                </div>
+                <div className="info-field">
+                  <label>Dirección de Envío Principal</label>
+                  <p>{user.address || 'No registrada'}</p>
                 </div>
               </div>
               <button className="edit-btn" onClick={() => {
@@ -199,6 +209,7 @@ const Dashboard = () => {
                     <th>Descripción</th>
                     <th>Total</th>
                     <th>Fecha</th>
+                    <th>Dirección de Envío</th>
                     <th>Estado</th>
                     <th>Acción</th>
                   </tr>
@@ -210,6 +221,7 @@ const Dashboard = () => {
                       <td>{order.product}</td>
                       <td>${order.price.toFixed(2)}</td>
                       <td>{order.date}</td>
+                      <td>{order.shippingAddress || 'Dirección registrada'}</td>
                       <td>
                         <span className={`status status-${order.rawStatus}`}>
                           {order.status}
@@ -243,10 +255,12 @@ const Dashboard = () => {
               <button className="modal-close" onClick={() => setSelectedOrder(null)}>×</button>
               <h2>Detalles de Orden #{selectedOrder}</h2>
               <div className="order-detail-info">
-                <p><strong>ID:</strong> {selectedOrder}</p>
+                <p><strong>ID:</strong> #{selectedOrder}</p>
                 <p><strong>Total:</strong> ${purchases.find(o => o.id === selectedOrder)?.price.toFixed(2)}</p>
                 <p><strong>Fecha:</strong> {purchases.find(o => o.id === selectedOrder)?.date}</p>
                 <p><strong>Estado:</strong> {purchases.find(o => o.id === selectedOrder)?.status}</p>
+                <p><strong>Dirección de Envío:</strong> {purchases.find(o => o.id === selectedOrder)?.shippingAddress || 'Dirección registrada'}</p>
+                <p><strong>Método de Pago:</strong> {purchases.find(o => o.id === selectedOrder)?.paymentMethod || 'Tarjeta'}</p>
               </div>
             </div>
           </div>

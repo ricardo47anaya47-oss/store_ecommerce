@@ -51,9 +51,9 @@ class CartController {
         while ($c = $columnsRes->fetch_assoc()) {
             $cols[] = $c['Field'];
         }
-        if (in_array('cart_id', $cols)) return 'cart_id';
         if (in_array('id', $cols)) return 'id';
-        return 'cart_id';
+        if (in_array('cart_id', $cols)) return 'cart_id';
+        return 'id';
     }
 
     private function getCartDetailIdColumn() {
@@ -88,9 +88,11 @@ class CartController {
         $cart = $cartResult->fetch_assoc();
         $cartId = $cart['id'];
 
+        $cartDetailIdCol = $this->getCartDetailIdColumn();
+
         // Obtener items del carrito con precio y nombre
         $itemsResult = $this->db->query(
-            "SELECT cart_detail_id as id, product_id, product_name as name, image, price, quantity 
+            "SELECT $cartDetailIdCol as id, product_id, product_name as name, image, price, quantity 
              FROM cart_detail
              WHERE cart_id = $cartId"
         );

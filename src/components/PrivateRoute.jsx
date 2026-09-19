@@ -9,12 +9,13 @@ export const PrivateRoute = ({ children }) => {
   // 1. Mientras se verifica la sesión en localStorage, mostramos la pantalla de carga
   if (loading) {
     return (
-      <div>
+      <div style={{ padding: '40px', textAlign: 'center' }}>
         Cargando sesión...
       </div>
     );
   }
 
+  // 2. Si el usuario está autenticado, mostramos la página protegida; si no, redirigimos al login
   return user ? children : <Navigate to="/login" replace />;
 };
 

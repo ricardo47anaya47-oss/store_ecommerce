@@ -58,8 +58,17 @@ class PurchaseController {
         return 'id';
     }
 
+    private function getProductTableName() {
+        foreach (['products', 'product'] as $tbl) {
+            $check = $this->db->query("SHOW TABLES LIKE '$tbl'");
+            if ($check && $check->num_rows > 0) return $tbl;
+        }
+        return 'products'; // fallback
+    }
+
     private function getProductIdColumn() {
-        $columnsRes = $this->db->query("SHOW COLUMNS FROM product");
+        $table = $this->getProductTableName();
+        $columnsRes = $this->db->query("SHOW COLUMNS FROM $table");
         $cols = [];
         while ($c = $columnsRes->fetch_assoc()) {
             $cols[] = $c['Field'];
@@ -167,9 +176,11 @@ class PurchaseController {
                 }
 
                 // Intentar actualizar stock solo si el producto existe en la tabla local
+                // (Los productos vienen de DummyJSON, por lo que este paso es opcional)
+                $productTable = $this->getProductTableName();
                 $productIdCol = $this->getProductIdColumn();
-                $this->db->getConnection()->query(
-                    "UPDATE product SET stock = stock - $quantity WHERE $productIdCol = $productId"
+                @$this->db->getConnection()->query(
+                    "UPDATE $productTable SET stock = stock - $quantity WHERE $productIdCol = $productId"
                 );
             }
 
@@ -202,7 +213,7 @@ class PurchaseController {
 
         $idCol = $this->getPurchaseIdColumn();
         $result = $this->db->query(
-            "SELECT $idCol as id, total, status, payment_method, created_at 
+            "SELECT $idCol as id, total, status, payment_method, shipping_address, created_at 
              FROM purchase 
              WHERE user_id = $userId 
              ORDER BY created_at DESC"

@@ -1,6 +1,5 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /api/
     
     # Si la ruta no es un archivo o carpeta física, envíala al index.php de la API
     RewriteCond %{REQUEST_FILENAME} !-f
