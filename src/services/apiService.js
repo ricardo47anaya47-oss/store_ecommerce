@@ -5,7 +5,9 @@ const isLocal =
 
 const AUTH_API_URL = isLocal
   ? 'http://localhost/store_ecommerce/api'
-  : 'https://stroreecommerce.infinityfreeapp.com/api';
+  : (typeof window !== 'undefined' && window.location.origin
+      ? `${window.location.origin}/api`
+      : 'https://stroreecommerce.infinityfreeapp.com/api');
 
 // Utilities
 const getToken = () => localStorage.getItem('token');
@@ -25,7 +27,19 @@ const apiCall = async (endpoint, options = {}) => {
     headers,
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type') || '';
+  let data;
+  if (contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    console.error(`[API Non-JSON Response] ${endpoint} (${response.status}):`, text);
+    throw new Error(
+      response.status === 403
+        ? 'Acceso denegado (403): El servidor o cortafuegos bloqueó la petición.'
+        : `Error del servidor (${response.status}).`
+    );
+  }
 
   if (!response.ok) {
     console.error(`[API ERROR] ${endpoint}:`, data);

@@ -1,7 +1,11 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /api/
     
-    # Si la ruta no es un archivo o carpeta física, envíala al index.php de la API
+    # Permitir que las cabeceras de autorizacion lleguen a PHP en servidores compartidos
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Si la ruta no es un archivo o carpeta fisica, enviala al index.php de la API
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
