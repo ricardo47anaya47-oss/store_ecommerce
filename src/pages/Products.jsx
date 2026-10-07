@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { useProducts } from '../hooks/useProductsAPI';
 import { CartContext } from '../context/CartContext';
 import Breadcrumb from '../components/Breadcrumb';
@@ -18,6 +18,7 @@ const Products = () => {
   const { addToCart } = useContext(CartContext);
 
   const { products, loading, error, pagination } = useProducts(page, 12);
+  const { formatDate } = useFormatDate();
 
   // Filtrar y ordenar productos
   const filteredAndSortedProducts = useMemo(() => {
