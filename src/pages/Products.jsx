@@ -60,7 +60,7 @@ const Products = () => {
     try {
       const quantity = quantities[String(product.id)] || 1;
       const response = await addToCart(product, quantity);
-      
+
       if (response.success) {
         addToast(
           `${product.title || product.name} agregado al carrito (cantidad: ${quantity})`,
@@ -132,8 +132,8 @@ const Products = () => {
           {filteredAndSortedProducts.map((product) => (
             <div key={product.id} className="product-card">
               <div className="product-image">
-                <img 
-                  src={product.thumbnail || product.image || 'https://placehold.co/300x300?text=No+Image'} 
+                <img
+                  src={product.thumbnail || product.image || 'https://placehold.co/300x300?text=No+Image'}
                   alt={product.title || product.name}
                   className="product-img"
                 />
@@ -141,16 +141,16 @@ const Products = () => {
                   <span className="overlay-text">Ver detalles</span>
                 </div>
               </div>
-              
+
               <div className="product-body">
                 <h2 className="product-name">{product.title || product.name}</h2>
                 <p className="product-description">{product.description}</p>
-                
+                <p className='product-createdAt '>Fecha de creación: {product.creationAt}</p>
                 <div className="product-info">
                   <div className="product-price">
                     ${parseFloat(product.price).toFixed(2)}
                   </div>
-                  
+
                   {product.rating && (
                     <div className="product-rating">
                       <span className="stars-count">{product.rating.toFixed(1)} ★</span>
@@ -167,15 +167,15 @@ const Products = () => {
 
               <div className="product-footer">
                 <div className="quantity-selector">
-                  <button 
+                  <button
                     className="qty-btn"
                     onClick={() => handleQuantityChange(product.id, -1)}
                     disabled={parseInt(product.stock) === 0}
                   >
                     −
                   </button>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     className="qty-input"
                     value={quantities[String(product.id)] || 1}
                     onChange={(e) => setQuantities(prev => ({
@@ -184,7 +184,7 @@ const Products = () => {
                     }))}
                     disabled={parseInt(product.stock) === 0}
                   />
-                  <button 
+                  <button
                     className="qty-btn"
                     onClick={() => handleQuantityChange(product.id, 1)}
                     disabled={parseInt(product.stock) === 0}
@@ -193,7 +193,7 @@ const Products = () => {
                   </button>
                 </div>
 
-                <button 
+                <button
                   className="add-to-cart-btn"
                   onClick={() => handleAddToCart(product)}
                   disabled={parseInt(product.stock) === 0 || loading}
@@ -207,7 +207,7 @@ const Products = () => {
       ) : (
         <div className="no-products">
           <p>No hay productos que coincidan con tus filtros</p>
-          <button 
+          <button
             className="reset-filters-btn"
             onClick={() => {
               setSortBy('default');
@@ -223,7 +223,7 @@ const Products = () => {
       {/* Pagination */}
       {totalPages > 1 && filteredAndSortedProducts.length > 0 && (
         <div className="pagination">
-          <button 
+          <button
             className="pagination-btn"
             onClick={() => goToPage(page - 1)}
             disabled={page === 1}
@@ -235,7 +235,7 @@ const Products = () => {
             Página {page} de {totalPages}
           </div>
 
-          <button 
+          <button
             className="pagination-btn"
             onClick={() => goToPage(page + 1)}
             disabled={page === totalPages}
