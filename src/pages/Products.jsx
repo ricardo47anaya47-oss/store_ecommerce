@@ -146,8 +146,8 @@ const Products = () => {
               <div className="product-body">
                 <h2 className="product-name">{product.title || product.name}</h2>
                 <p className="product-description">{product.description}</p>
-                <p className='product-createdAt '>Fecha de creación: {product.creationAt}</p>
                 <div className="product-info">
+                  <p className='product-createdAt '>Fecha de creación: {product.creationAt}</p>
                   <div className="product-price">
                     ${parseFloat(product.price).toFixed(2)}
                   </div>
